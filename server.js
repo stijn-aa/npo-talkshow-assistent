@@ -107,6 +107,7 @@ async function init() {
     await getTopic.pauw(a)
   }
 }
+
 init()
 
 const PORT = process.env.PORT || 8080;
