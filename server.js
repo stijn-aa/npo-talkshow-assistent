@@ -106,12 +106,14 @@ reqproces.intent('GetTopic', (conv, params) => {
   reqDate = new Date(params.date)
   topics = selector(params.talkshowNamen, reqDate)
   if (topics.length !== 0) {
-    conv.ask(`ik heb ${topics.length} onderwerpen gevonden`);
-    conv.close(`${topics.toString()}`);
+    conv.ask(`Ik heb ${topics.length} onderwerpen gevonden. ${topics.toString()}`);
+    conv.ask(`Wil je nog wat weten?`);
   } else if (params.talkshowNamen === "pauw") {
     conv.ask(`Ik heb niks voor je kunnen vinden. Er was waarschijnlijk geen uitzending op die dag.`);
+    conv.ask(`Wil je nog wat weten?`);
   } else {
     conv.ask(`${params.talkshowNamen} is nog niet toegevoegd aan de app. toegevoegd zijn nu: Pauw`);
+    conv.ask(`Wil je nog wat weten?`);
   }
 });
 
