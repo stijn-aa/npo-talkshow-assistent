@@ -91,7 +91,7 @@ function selector(_host, reqdate) {
     }
   })
   for (a = 0; a < topics.length; a++) {
-    topics[a] = topics[a] + ". <break time='1' /> "
+    topics[a] = topics[a] + ". <break time='0.5' /> "
     if (a === topics.length - 1) {
       topics[a] = "En " + topics[a] + ". "
     }
@@ -106,12 +106,12 @@ reqproces.intent('GetTopic', (conv, params) => {
   reqDate = new Date(params.date)
   topics = selector(params.talkshowNamen, reqDate)
   if (topics.length !== 0) {
-    conv.ask(`<speak> Ik heb ${topics.length} onderwerpen gevonden. <break time='2' /> ${topics.toString()} </speak>`);
+    conv.ask(`<speak> Ik heb ${topics.length} onderwerpen gevonden. <break time='0.5' /> ${topics.toString()} </speak>`);
     conv.ask(`Wil je nog wat weten?`);
 
 
   } else if (params.talkshowNamen === "pauw") {
-    conv.ask(`Ik heb niks voor je kunnen vinden. Er was waarschijnlijk geen uitzending op die dag.`);
+    conv.ask(`Ik heb niks voor je kunnen vinden. Er was waarschijnlijk geen uitzending geweest op die dag.`);
     conv.ask(`Wil je nog wat weten?`);
   } else {
     conv.ask(`${params.talkshowNamen} is nog niet toegevoegd aan de app. toegevoegd zijn nu: Pauw`);
