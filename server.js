@@ -16,8 +16,9 @@ const reqproces = dialogflow({
   debug: true
 });
 
-const pauw = 'https://pauw.bnnvara.nl/gemist/fragment/datum/altijd/pagina/';
-const list = [];
+const pauwUrl = 'https://pauw.bnnvara.nl/gemist/fragment/datum/altijd/pagina/';
+let list = [];
+
 
 app.use(bodyParser.json());
 
@@ -26,29 +27,31 @@ app.get('/', function (req, res) {
 });
 
 const getTopic = {
-  pauw: function (a) {
-    rp(pauw + a) //pauw
-      .then(function (html) {
-        const length = $('.card-title', html).length;
-        for (let i = 0; i < length; i++) {
-          const date = $('.card-footer > span > .meta-date', html)[i].children[0].data.replace(/(\r\n|\n|\r)/gm, "").trim()
-          const topic = $('.card-footer > a > h3', html)[i].children[0].data.replace(/(\r\n|\n|\r)/gm, "").trim()
-          obj = {}
-          obj.date = new Date(setDate(date))
-          //console.log(new Date(setDate(date)))
-          obj.topic = topic
-          list.push(obj);
-        }
-      })
-      .then(function () {
-        console.log(list)
-      })
-
-      .catch(function (err) {
-        //handle error
-      });
-
-
+  pauw: async function () {
+    let pauw = [];
+    for (a = 1; a < 9; a++) {
+      await rp(pauwUrl + a) //pauw
+        .then(function (html) {
+          const length = $('.card-title', html).length;
+          for (let i = 0; i < length; i++) {
+            const date = $('.card-footer > span > .meta-date', html)[i].children[0].data.replace(/(\r\n|\n|\r)/gm, "").trim()
+            const topic = $('.card-footer > a > h3', html)[i].children[0].data.replace(/(\r\n|\n|\r)/gm, "").trim()
+            obj = {}
+            obj.date = new Date(setDate(date))
+            //console.log(new Date(setDate(date)))
+            obj.topic = topic
+            pauw.push(obj);
+          }
+        })
+        .catch(function (err) {
+          //handle error
+        });
+    }
+    host = {
+      "pauw": pauw
+    }
+    list.push(host)
+    console.log(list)
   }
 }
 
@@ -64,26 +67,29 @@ month.set("februari", "February");
 
 function setDate(date) {
   const part = date.split(" ")
-
   if (month.has(part[1])) {
     part[1] = month.get(part[1])
   }
-
   newDate = part.reverse().join(" ")
-
   return newDate
 }
 
 
-function selector(reqdate) {
+function selector(_host, reqdate) {
   let topics = []
-  list.forEach(element => {
-    //console.log(element.date.toISOString().split("T")[0] , reqdate.toISOString().split("T")[0])
-    if (element.date.toISOString().split("T")[0] === reqdate.toISOString().split("T")[0]) {
-      topics.push(element.topic)
+  console.log(_host)
+  list.forEach(host => {
+    console.log(_host, Object.keys(host).toString())
+    if (Object.keys(host).toString() === _host) {
+      console.log(Object.values(host)[0])
+      Object.values(host)[0].forEach(element => {
+        console.log(element.date.toISOString().split("T")[0], reqdate.toISOString().split("T")[0])
+        if (element.date.toISOString().split("T")[0] === reqdate.toISOString().split("T")[0]) {
+          topics.push(element.topic)
+        }
+      })
     }
   })
-
   for (a = 0; a < topics.length; a++) {
     topics[a] = topics[a] + ". "
     if (a === topics.length - 1) {
@@ -96,31 +102,26 @@ function selector(reqdate) {
 
 
 reqproces.intent('GetTopic', (conv, params) => {
-
+  console.log(params)
   reqDate = new Date(params.date)
-  topics = selector(reqDate)
+  topics = selector(params.talkshowNamen, reqDate)
   if (topics.length !== 0) {
     conv.ask(`ik heb ${topics.length} onderwerpen gevonden`);
-
     conv.close(`${topics.toString()}`);
-
-  } else if(params.talkshowNamen === pauw) {
+  } else if (params.talkshowNamen === "pauw") {
     conv.ask(`Ik heb niks voor je kunnen vinden. Er was waarschijnlijk geen uitzending op die dag.`);
-  } else{
+  } else {
     conv.ask(`${params.talkshowNamen} is nog niet toegevoegd aan de app. toegevoegd zijn nu: Pauw`);
   }
-
 });
 
 app.post('/webhook', reqproces);
 
-async function init() {
-  for (a = 1; a < 9; a++) {
-    await getTopic.pauw(a)
-  }
-}
 
-init()
+
+
+
+getTopic.pauw();
 
 const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => {
