@@ -78,10 +78,19 @@ function setDate(date) {
 function selector(reqdate) {
   let topics = []
   list.forEach(element => {
+    //console.log(element.date.toISOString().split("T")[0] , reqdate.toISOString().split("T")[0])
     if (element.date.toISOString().split("T")[0] === reqdate.toISOString().split("T")[0]) {
       topics.push(element.topic)
     }
   })
+
+  for (a = 0; a < topics.length; a++) {
+    topics[a] = topics[a] + ". "
+    if (a === topics.length - 1) {
+      topics[a] = "En " + topics[a] + ". "
+    }
+  }
+  console.log(topics)
   return topics
 }
 
@@ -89,10 +98,11 @@ function selector(reqdate) {
 reqproces.intent('GetTopic', (conv, params) => {
 
   reqDate = new Date(params.date)
-  if (selector(reqDate).length !== 0) {
-    conv.ask(`ik heb ${selector(reqDate).length} onderwerpen gevonden`);
+  topics = selector(reqDate)
+  if (topics.length !== 0) {
+    conv.ask(`ik heb ${topics.length} onderwerpen gevonden`);
 
-    conv.close(`${selector(reqDate).toString()}`);
+    conv.close(`${topics.toString()}`);
 
   } else {
     conv.ask(`ik heb niks voor je kunnen vinden`);
