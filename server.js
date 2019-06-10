@@ -104,8 +104,10 @@ reqproces.intent('GetTopic', (conv, params) => {
 
     conv.close(`${topics.toString()}`);
 
-  } else {
-    conv.ask(`ik heb niks voor je kunnen vinden`);
+  } else if(params.talkshowNamen === pauw) {
+    conv.ask(`Ik heb niks voor je kunnen vinden. Er was waarschijnlijk geen uitzending op die dag.`);
+  } else{
+    conv.ask(`${params.talkshowNamen} is nog niet toegevoegd aan de app. toegevoegd zijn nu: Pauw`);
   }
 
 });
