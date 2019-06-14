@@ -60,9 +60,7 @@ const getTopic = {
   },
   dwdd: async function () {
     let dwdd = [];
-    const browser = await puppeteer.launch({
-      headless: false
-  });
+    const browser = await puppeteer.launch();
     let selector = '[class="button expand lazyload"]';
 
     const page = await browser.newPage();
@@ -105,9 +103,7 @@ const getTopic = {
   jinek: async function(){
 
   let jinek = [];
-    const browser = await puppeteer.launch({
-      headless: false
-  });
+    const browser = await puppeteer.launch();
     let selector = '[class="scroll-top"]';
 
     const page = await browser.newPage();
