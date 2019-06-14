@@ -60,7 +60,12 @@ const getTopic = {
   },
   dwdd: async function () {
     let dwdd = [];
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+      ],
+    });
     let selector = '[class="button expand lazyload"]';
 
     const page = await browser.newPage();
@@ -103,7 +108,12 @@ const getTopic = {
   jinek: async function(){
 
   let jinek = [];
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+      ],
+    });
     let selector = '[class="scroll-top"]';
 
     const page = await browser.newPage();
