@@ -94,7 +94,7 @@ function selector(_host, reqdate) {
   for (a = 0; a < topics.length; a++) {
     topics[a] = " " + topics[a]
     if (a === topics.length - 1) {
-      topics[a] = "En " + topics[a] + ". "
+      topics[a] = "En" + topics[a] + ". "
     }
   }
   console.log(topics)
