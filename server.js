@@ -40,7 +40,9 @@ const getTopic = {
             obj.date = new Date(setDate(date))
             //console.log(new Date(setDate(date)))
             obj.topic = topic
-            pauw.push(obj);
+            if (!pauw.includes(obj)) {
+              pauw.push(obj);
+            }
           }
         })
         .catch(function (err) {
@@ -51,10 +53,9 @@ const getTopic = {
       "pauw": pauw
     }
     list.push(host)
-    console.log(list)
+    //console.log(list)
   }
 }
-
 
 let month = new Map()
 
@@ -74,24 +75,24 @@ function setDate(date) {
   return newDate
 }
 
-
 function selector(_host, reqdate) {
   let topics = []
-  console.log(_host)
+  //console.log(_host)
   list.forEach(host => {
-    console.log(_host, Object.keys(host).toString())
+    // console.log(_host, Object.keys(host).toString())
     if (Object.keys(host).toString() === _host) {
-      console.log(Object.values(host)[0])
+      //console.log(Object.values(host)[0])
       Object.values(host)[0].forEach(element => {
-        console.log(element.date.toISOString().split("T")[0], reqdate.toISOString().split("T")[0])
+        //console.log(element.date.toISOString().split("T")[0], reqdate.toISOString().split("T")[0])
         if (element.date.toISOString().split("T")[0] === reqdate.toISOString().split("T")[0]) {
-          topics.push(element.topic)
+            topics.push(element.topic)
+          console.log("push")
         }
       })
     }
   })
   for (a = 0; a < topics.length; a++) {
-    topics[a] = topics[a] + ". <break time='0.5' /> "
+    topics[a] = " " + topics[a]
     if (a === topics.length - 1) {
       topics[a] = "En " + topics[a] + ". "
     }
@@ -100,30 +101,24 @@ function selector(_host, reqdate) {
   return topics
 }
 
-
 reqproces.intent('GetTopic', (conv, params) => {
   console.log(params)
   reqDate = new Date(params.date)
   topics = selector(params.talkshowNamen, reqDate)
   if (topics.length !== 0) {
-    conv.ask(`<speak> Ik heb ${topics.length} onderwerpen gevonden. <break time='0.5' /> ${topics.toString()} </speak>`);
+    conv.ask(`<speak> Ik heb ${topics.length} onderwerpen gevonden. <break time='0.5' /> ${topics.toString().replace(/,/gm, ". <break time='0.5' /> ")} </speak>`);
     conv.ask(`Wil je nog wat weten?`);
-
 
   } else if (params.talkshowNamen === "pauw") {
-    conv.ask(`Ik heb niks voor je kunnen vinden. Er was waarschijnlijk geen uitzending geweest op die dag.`);
+    conv.ask(`<speak> Ik heb niks voor je kunnen vinden op  <say-as interpret-as="date" format="yyyymmdd" detail="1">${reqDate.toISOString().split("T")[0]}</say-as></speak>`);
     conv.ask(`Wil je nog wat weten?`);
   } else {
-    conv.ask(`${params.talkshowNamen} is nog niet toegevoegd aan de app. toegevoegd zijn nu: Pauw`);
+    conv.ask(`${params.talkshowNamen} is nog niet toegevoegd aan de app. Tot nu toe ken ik alleen de onderwerpen van pauw.`);
     conv.ask(`Wil je nog wat weten?`);
   }
 });
 
 app.post('/webhook', reqproces);
-
-
-
-
 
 getTopic.pauw();
 
