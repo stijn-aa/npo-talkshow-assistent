@@ -58,6 +58,7 @@ const getTopic = {
     list.push(show)
     //console.log(list)
   },
+  
   dwdd: async function () {
     let dwdd = [];
     const browser = await puppeteer.launch({
