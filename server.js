@@ -58,7 +58,7 @@ const getTopic = {
     list.push(show)
     //console.log(list)
   },
-  
+
   dwdd: async function () {
     let dwdd = [];
     const browser = await puppeteer.launch({
@@ -83,15 +83,15 @@ const getTopic = {
 
       .then(function (html) {
         const length = $('.item-footer', html).length;
-        console.log(length)
+        //console.log(length)
          for (let i = 0; i < length; i++) {
           const date = $('[pubdate="pubdate"]', html)[i].children[0].data.replace(/(\r\n|\n|\r)/gm, "").trim()
           const topic = $('.item-footer > h3 > a', html)[i].children[0].data.replace(/(\r\n|\n|\r)/gm, "").trim()
-          console.log(topic)
+          //console.log(topic)
           const newDate = date.substr(date.indexOf(" ") + 1)
           obj = {}
           obj.date = new Date(setDate(newDate))
-          console.log(new Date(setDate(newDate)))
+          //console.log(new Date(setDate(newDate)))
           obj.topic = topic
           if (!dwdd.includes(obj)) {
             dwdd.push(obj); 
@@ -105,7 +105,7 @@ const getTopic = {
     }
     list.push(show)
     await browser.close();
-    console.log("Iam done!");
+    //console.log("Iam done!");
   },
   jinek: async function(){
 
@@ -131,14 +131,14 @@ const getTopic = {
 
       .then(function (html) {
         const length = $('.js-full-click-enabled', html).length;
-        console.log(length)
+       // console.log(length)
          for (let i = 0; i < length - 5 ; i++) {
           const date = $('[class="date-display-single"]', html)[i].children[0].data.replace(/(\r\n|\n|\r)/gm, "").trim()
           const topic = $('[class="ds-1col node node-fragment view-mode-tile "] > h2 > a', html)[i].children[0].data.replace(/(\r\n|\n|\r)/gm, "").trim()
-          console.log(topic)
+          //console.log(topic)
           obj = {}
           obj.date = new Date(setDate(date))
-          console.log(new Date(setDate(date)))
+          //console.log(new Date(setDate(date)))
           obj.topic = topic
           if (!jinek.includes(obj)) {
             jinek.push(obj); 
@@ -152,7 +152,7 @@ const getTopic = {
     }
     list.push(show)
     await browser.close();
-    console.log("Iam done!");
+    //console.log("Iam done!");
   },
 
 }
@@ -198,7 +198,7 @@ function selector(_show, reqdate) {
       topics[a] = "En" + topics[a] + ". "
     }
   }
-  console.log(topics)
+  //console.log(topics)
   return topics
 }
 
@@ -206,15 +206,16 @@ reqproces.intent('GetTopic', (conv, params) => {
   console.log(params)
   reqDate = new Date(params.date)
   topics = selector(params.talkshowNamen, reqDate)
+  console.log(topics)
   if (topics.length !== 0) {
     conv.ask(`<speak> Ik heb ${topics.length} onderwerpen gevonden. <break time='0.5' /> ${topics.toString().replace(/,/gm, ". <break time='0.5' /> ")} </speak>`);
     conv.ask(`Wil je nog wat weten?`);
 
-  } else if (params.talkshowNamen === "pauw") {
+  } else if (params.talkshowNamen === "pauw"||params.talkshowNamen === "jinek"||params.talkshowNamen === "dwdd") {
     conv.ask(`<speak> Ik heb niks voor je kunnen vinden op  <say-as interpret-as="date" format="yyyymmdd" detail="1">${reqDate.toISOString().split("T")[0]}</say-as></speak>`);
     conv.ask(`Wil je nog wat weten?`);
   } else {
-    conv.ask(`${params.talkshowNamen} is nog niet toegevoegd aan de app. Tot nu toe ken ik alleen de onderwerpen van pauw.`);
+    conv.ask(`${params.talkshowNamen} is nog niet toegevoegd aan de app. Tot nu toe weet ik alleen de onderwerpen van pauw, jinek en de wereld draait door.`);
     conv.ask(`Wil je nog wat weten?`);
   }
 });
