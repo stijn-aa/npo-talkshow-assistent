@@ -113,7 +113,7 @@ const getTopic = {
         '--no-sandbox',
         '--disable-setuid-sandbox',
       ],
-    });\
+    });
   
     let selector = '[class="scroll-top"]';
 
