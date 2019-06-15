@@ -114,7 +114,7 @@ const getTopic = {
         '--disable-setuid-sandbox',
       ],
     });
-    
+  
     let selector = '[class="scroll-top"]';
 
     const page = await browser.newPage();
