@@ -29,8 +29,7 @@ app.get('/', function (req, res) {
   res.json(list)
 });
 
-const getTopic = {
-  pauw: async function () {
+async function getTopicPauw(){
     let pauw = [];
     for (a = 1; a < 9; a++) {
       await rp(pauwUrl + a) //pauw
@@ -41,9 +40,9 @@ const getTopic = {
             const topic = $('.card-footer > a > h3', html)[i].children[0].data.replace(/(\r\n|\n|\r)/gm, "").trim()
             obj = {}
             obj.date = new Date(setDate(date))
-            //console.log(new Date(setDate(date)))
+            console.log("pauw",new Date(setDate(date)))
             obj.topic = topic
-            if (!pauw.includes(obj)) {
+            if (!pauw.includes(obj))  {
               pauw.push(obj);
             }
           }
@@ -57,9 +56,9 @@ const getTopic = {
     }
     list.push(show)
     //console.log(list)
-  },
+}
 
-  dwdd: async function () {
+async function getTopicDwdd() {
     let dwdd = [];
     const browser = await puppeteer.launch({
       headless: true,
@@ -91,7 +90,7 @@ const getTopic = {
           const newDate = date.substr(date.indexOf(" ") + 1)
           obj = {}
           obj.date = new Date(setDate(newDate))
-          //console.log(new Date(setDate(newDate)))
+          console.log("dwdd",new Date(setDate(newDate)))
           obj.topic = topic
           if (!dwdd.includes(obj)) {
             dwdd.push(obj); 
@@ -105,9 +104,10 @@ const getTopic = {
     }
     list.push(show)
     await browser.close();
-    //console.log("Iam done!");
-  },
-  jinek: async function(){
+    console.log("Iam done!");
+}
+
+async function getTopicJinek(){
 
   let jinek = [];
     const browser = await puppeteer.launch({
@@ -138,7 +138,7 @@ const getTopic = {
           //console.log(topic)
           obj = {}
           obj.date = new Date(setDate(date))
-          //console.log(new Date(setDate(date)))
+          console.log("jinek",new Date(setDate(date)))
           obj.topic = topic
           if (!jinek.includes(obj)) {
             jinek.push(obj); 
@@ -152,9 +152,8 @@ const getTopic = {
     }
     list.push(show)
     await browser.close();
-    //console.log("Iam done!");
-  },
-
+    console.log("Iam done!");
+   // console.log(list)
 }
 
 
@@ -210,7 +209,6 @@ reqproces.intent('GetTopic', (conv, params) => {
   if (topics.length !== 0) {
     conv.ask(`<speak> Ik heb ${topics.length} onderwerpen gevonden. <break time='0.5' /> ${topics.toString().replace(/,/gm, ". <break time='0.5' /> ")} </speak>`);
     conv.ask(`Wil je nog wat weten?`);
-
   } else if (params.talkshowNamen === "pauw"||params.talkshowNamen === "jinek"||params.talkshowNamen === "dwdd") {
     conv.ask(`<speak> Ik heb niks voor je kunnen vinden op  <say-as interpret-as="date" format="yyyymmdd" detail="1">${reqDate.toISOString().split("T")[0]}</say-as></speak>`);
     conv.ask(`Wil je nog wat weten?`);
@@ -222,10 +220,9 @@ reqproces.intent('GetTopic', (conv, params) => {
 
 app.post('/webhook', reqproces);
 
-getTopic.pauw();
-getTopic.dwdd();
-getTopic.jinek()
-
+getTopicPauw();
+getTopicDwdd();
+getTopicJinek()
 
 const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => {
