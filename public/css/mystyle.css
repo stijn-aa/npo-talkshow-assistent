@@ -1,0 +1,19 @@
+body{
+  
+    margin: 3%;
+    background: #eaeaea;
+    font-family: 'Open Sans', sans-serif;
+  
+  }
+
+iframe {
+  box-shadow: 0px 19px 147px -41px rgba(0,0,0,0.75);
+  border: 0;
+  width: 400px;
+  height: 530px;
+  display: block;
+  margin: 0 auto;
+  margin-bottom: 40px;
+
+}
+

@@ -5,6 +5,7 @@ const rp = require('request-promise');
 const puppeteer = require('puppeteer');
 const $ = require('cheerio');
 const bodyParser = require('body-parser');
+const path = require('path');
 
 const {
   dialogflow,
@@ -28,11 +29,14 @@ let list = [{
   "jinek": []
 }];
 
-
+app.use(express.static('public'))
 app.use(bodyParser.json());
 
-app.get('/', function (req, res) {
+app.get('/list', function (req, res) {
   res.json(list)
+});
+app.get('/', function(req, res) {
+  res.sendFile(path.join(__dirname + '/index.html'));
 });
 
 async function getTopicPauw() {
@@ -49,7 +53,7 @@ async function getTopicPauw() {
           pushTopic("pauw", obj)
         }
       })
-      
+
       .catch(function (err) {
 
       });
