@@ -45,17 +45,15 @@ async function getTopicPauw() {
           const topic = $('.card-footer > a > h3', html)[i].children[0].data.replace(/(\r\n|\n|\r)/gm, "").trim()
           obj = {}
           obj.date = new Date(setDate(date))
-          ////console.log("pauw", new Date(setDate(date)))
           obj.topic = topic
           pushTopic("pauw", obj)
-
         }
       })
+      
       .catch(function (err) {
-        //handle error
+
       });
   }
-  console.log("----------------------------------------------------------- imdone")
 }
 
 async function getTopicDwdd() {
@@ -102,7 +100,6 @@ async function getTopicDwdd() {
 }
 
 async function getTopicJinek() {
-
   const browser = await puppeteer.launch({
     headless: true,
     args: [
@@ -112,38 +109,30 @@ async function getTopicJinek() {
   });
 
   let selector = '[class="scroll-top"]';
-
   const page = await browser.newPage();
-
   await page.goto(jinekUrl, {
     waitUntil: 'networkidle2'
   });
+
   for (i = 0; i < 5; i++) {
     await page.$eval(selector, (el) => el.scrollIntoView())
     await page.waitFor(1000);
   }
-  await page.evaluate(() => document.body.innerHTML)
 
+  await page.evaluate(() => document.body.innerHTML)
     .then(function (html) {
       const length = $('.js-full-click-enabled', html).length;
-      // //console.log(length)
       for (let i = 0; i < length - 5; i++) {
         const date = $('[class="date-display-single"]', html)[i].children[0].data.replace(/(\r\n|\n|\r)/gm, "").trim()
         const topic = $('[class="ds-1col node node-fragment view-mode-tile "] > h2 > a', html)[i].children[0].data.replace(/(\r\n|\n|\r)/gm, "").trim()
-        ////console.log(topic)
         obj = {}
         obj.date = new Date(setDate(date))
-        ////console.log("jinek", new Date(setDate(date)))
         obj.topic = topic
         pushTopic("jinek", obj)
       }
     })
-
   await browser.close();
-  console.log("---------------------------------------------------------------------------- Iam done!");
-  // //console.log(list)
 }
-
 
 let month = new Map()
 
@@ -193,21 +182,13 @@ function pushTopic(show, obj) {
   })
 }
 
-
-
-
 function selector(_show, reqdate) {
   let topics = []
-  ////console.log(_host)
   list.forEach(show => {
-    // //console.log(_host, Object.keys(host).toString())
     if (Object.keys(show).toString() === _show) {
-      ////console.log(Object.values(host)[0])
       Object.values(show)[0].forEach(element => {
-        ////console.log(element.date.toISOString().split("T")[0], reqdate.toISOString().split("T")[0])
         if (element.date.toISOString().split("T")[0] === reqdate.toISOString().split("T")[0]) {
           topics.push(element.topic)
-
         }
       })
     }
@@ -218,7 +199,6 @@ function selector(_show, reqdate) {
       topics[a] = "En" + topics[a] + ". "
     }
   }
-  ////console.log(topics)
   return topics
 }
 
