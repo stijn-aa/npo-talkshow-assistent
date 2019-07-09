@@ -77,7 +77,7 @@ async function getTopicDwdd() {
   });
   await page.waitFor(selector)
   await page.focus(selector)
-  for (i = 0; i < 5; i++) {
+  for (i = 0; i < 10; i++) {
     await page.click(selector)
     await page.waitFor(1000);
   }
@@ -118,7 +118,7 @@ async function getTopicJinek() {
     waitUntil: 'networkidle2'
   });
 
-  for (i = 0; i < 5; i++) {
+  for (i = 0; i < 10; i++) {
     await page.$eval(selector, (el) => el.scrollIntoView())
     await page.waitFor(1000);
   }
@@ -205,6 +205,7 @@ function selector(_show, reqdate) {
   }
   return topics
 }
+(`<speak>${topics.toString().replace(/,/gm, ". <break time='0.5' /> ")} </speak>`)
 
 reqproces.intent('GetTopic', (conv, params) => {
   //console.log(params)
