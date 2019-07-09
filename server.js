@@ -205,7 +205,6 @@ function selector(_show, reqdate) {
   }
   return topics
 }
-(`<speak>${topics.toString().replace(/,/gm, ". <break time='0.5' /> ")} </speak>`)
 
 reqproces.intent('GetTopic', (conv, params) => {
   //console.log(params)
