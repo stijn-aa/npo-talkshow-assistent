@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+var http = require("http");
 const server = require('http').createServer(app);
 const rp = require('request-promise');
 const puppeteer = require('puppeteer');
@@ -18,6 +19,7 @@ const reqproces = dialogflow({
   debug: true
 });
 
+
 const pauwUrl = 'https://pauw.bnnvara.nl/gemist/fragment/datum/altijd/pagina/';
 const dwddUrl = "https://dewerelddraaitdoor.bnnvara.nl/gemist/fragment/datum/altijd"
 const jinekUrl = "https://evajinek.kro-ncrv.nl/uitzendingen/programma/jinek"
@@ -35,7 +37,7 @@ app.use(bodyParser.json());
 app.get('/list', function (req, res) {
   res.json(list)
 });
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname + '/index.html'));
 });
 
@@ -174,7 +176,7 @@ function pushTopic(show, obj) {
       array = Object.values(_show)[0]
       console.log(array)
 
-      let contains = array.some(elem =>{
+      let contains = array.some(elem => {
         return JSON.stringify(obj) === JSON.stringify(elem);
       });
 
@@ -227,7 +229,19 @@ app.post('/webhook', reqproces);
 
 getTopicPauw();
 getTopicDwdd();
-getTopicJinek()
+getTopicJinek();
+
+setInterval(function () {
+  http.get("http://npo-talkshow-assistent.herokuapp.com");
+}, 1200000); // every 5 minutes (300000)
+
+var dayInMilliseconds = 1000 * 60 * 60 * 24;
+
+setInterval(function () {
+  getTopicPauw();
+  getTopicDwdd();
+  getTopicJinek();
+}, dayInMilliseconds);
 
 const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => {
