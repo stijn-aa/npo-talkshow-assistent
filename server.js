@@ -24,12 +24,19 @@ const pauwUrl = 'https://pauw.bnnvara.nl/gemist/fragment/datum/altijd/pagina/';
 const dwddUrl = "https://dewerelddraaitdoor.bnnvara.nl/gemist/fragment/datum/altijd"
 const jinekUrl = "https://evajinek.kro-ncrv.nl/uitzendingen/programma/jinek"
 let list = [{
-  "pauw": []
-}, {
-  "dwdd": []
-}, {
-  "jinek": []
-}];
+  
+    "last_update": 0
+  },
+  {
+    "pauw": []
+  },
+  {
+    "dwdd": []
+  },
+  {
+    "jinek": []
+  }
+];
 
 app.use(express.static('public'))
 app.use(bodyParser.json());
@@ -42,6 +49,7 @@ app.get('/', function (req, res) {
 });
 
 async function getTopicPauw() {
+  console.log("updating pauw")
   for (a = 1; a < 9; a++) {
     await rp(pauwUrl + a) //pauw
       .then(function (html) {
@@ -60,9 +68,11 @@ async function getTopicPauw() {
 
       });
   }
+  console.log("------------------------------------------------------------------------------ pauw done!");
 }
 
 async function getTopicDwdd() {
+  console.log("updating dwdd")
   const browser = await puppeteer.launch({
     headless: true,
     args: [
@@ -102,10 +112,11 @@ async function getTopicDwdd() {
     })
 
   await browser.close();
-  console.log("------------------------------------------------------------------------------ Iam done!");
+  console.log("------------------------------------------------------------------------------ dwdd done!");
 }
 
 async function getTopicJinek() {
+  console.log("updating jinek")
   const browser = await puppeteer.launch({
     headless: true,
     args: [
@@ -138,6 +149,7 @@ async function getTopicJinek() {
       }
     })
   await browser.close();
+  console.log("------------------------------------------------------------------------------ jinek done!");
 }
 
 let month = new Map()
@@ -174,14 +186,14 @@ function pushTopic(show, obj) {
     if (Object.keys(_show)[0] === show.toString()) {
       //console.log("true")
       array = Object.values(_show)[0]
-      console.log(array)
+      // console.log(array)
 
       let contains = array.some(elem => {
         return JSON.stringify(obj) === JSON.stringify(elem);
       });
 
       if (!contains) {
-        console.log(Object.keys(_show)[0], "does nog include", obj)
+        // console.log(Object.keys(_show)[0], "does nog include", obj)
         Object.values(_show)[0].push(obj)
       }
     }
@@ -226,6 +238,7 @@ reqproces.intent('GetTopic', (conv, params) => {
 });
 
 app.post('/webhook', reqproces);
+list[0].last_update = new Date
 
 getTopicPauw();
 getTopicDwdd();
@@ -235,15 +248,18 @@ setInterval(function () {
   http.get("http://npo-talkshow-assistent.herokuapp.com");
 }, 1200000); // every 20 minutes
 
-var dayInMilliseconds = (1000 * 60 * 60 * 24)/4;
+var dayInMilliseconds = (1000 * 60 * 60 * 24) / 4;
 
 setInterval(function () {
+  
   getTopicPauw();
   getTopicDwdd();
   getTopicJinek();
+  list[0].last_update = new Date
+
 }, dayInMilliseconds);
 
 const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => {
-  //console.log(`Our app is running on port ${ PORT }`);
+  console.log(`Our app is running on port ${ PORT }`);
 })
