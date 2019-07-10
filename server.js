@@ -233,9 +233,9 @@ getTopicJinek();
 
 setInterval(function () {
   http.get("http://npo-talkshow-assistent.herokuapp.com");
-}, 1200000); // every 5 minutes (300000)
+}, 1200000); // every 20 minutes
 
-var dayInMilliseconds = 1000 * 60 * 60 * 24;
+var dayInMilliseconds = (1000 * 60 * 60 * 24)/4;
 
 setInterval(function () {
   getTopicPauw();
