@@ -20,8 +20,8 @@ const reqproces = dialogflow({
 });
 
 
-const pauwUrl = 'https://pauw.bnnvara.nl/gemist/fragment/datum/altijd/pagina/';
-const dwddUrl = "https://dewerelddraaitdoor.bnnvara.nl/gemist/fragment/datum/altijd"
+const pauwUrl = "https://www.bnnvara.nl/pauw/videos?type=fragmenten&since=alles";
+const dwddUrl = "https://www.bnnvara.nl/dewerelddraaitdoor/videos?type=extras&since=alles"
 const jinekUrl = "https://evajinek.kro-ncrv.nl/uitzendingen/programma/jinek"
 let list = [{
   
@@ -49,26 +49,48 @@ app.get('/', function (req, res) {
 });
 
 async function getTopicPauw() {
-  console.log("updating pauw")
-  for (a = 1; a < 9; a++) {
-    await rp(pauwUrl + a) //pauw
-      .then(function (html) {
-        const length = $('.card-title', html).length;
-        for (let i = 0; i < length; i++) {
-          const date = $('.card-footer > span > .meta-date', html)[i].children[0].data.replace(/(\r\n|\n|\r)/gm, "").trim()
-          const topic = $('.card-footer > a > h3', html)[i].children[0].data.replace(/(\r\n|\n|\r)/gm, "").trim()
-          obj = {}
-          obj.date = new Date(setDate(date))
-          obj.topic = topic
-          pushTopic("pauw", obj)
-        }
-      })
+  console.log("updating Pauw")
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+    ],
+  });
+  let selector = '[class="u4osqh-0 ciDVDK"]';
 
-      .catch(function (err) {
+  const page = await browser.newPage();
 
-      });
+  await page.goto(pauwUrl, {
+    waitUntil: 'networkidle2'
+  });
+   await page.waitFor(selector)
+   await page.focus(selector)
+  for (i = 0; i < 30; i++) {
+    await page.click(selector)
+    await page.waitFor(selector);
   }
-  console.log("------------------------------------------------------------------------------ pauw done!");
+  await page.evaluate(() => document.body.innerHTML)
+
+    .then(function (html) {
+      //console.log(html)
+      const length = $('.kBxCgu', html).length;
+      console.log(length)
+      for (let i = 0; i < length; i++) {
+        const date = $('.kBxCgu > a > div > .bFocVK > div', html)[i].children[0].data.replace(/(\r\n|\n|\r)/gm, "").trim()
+        const topic = $('.kBxCgu > a > div > div > h2', html)[i].children[0].data.replace(/(\r\n|\n|\r)/gm, "").trim()
+        //console.log(date)
+        obj = {}
+        obj.date = setDate(date)
+        obj.topic = topic
+        console.log(obj)
+        pushTopic("pauw", obj)
+      }
+
+    })
+
+  await browser.close();
+  console.log("------------------------------------------------------------------------------ dwdd done!");
 }
 
 async function getTopicDwdd() {
@@ -80,35 +102,36 @@ async function getTopicDwdd() {
       '--disable-setuid-sandbox',
     ],
   });
-  let selector = '[class="button expand lazyload"]';
+  let selector = '[class="u4osqh-0 ciDVDK"]';
 
   const page = await browser.newPage();
 
   await page.goto(dwddUrl, {
     waitUntil: 'networkidle2'
   });
-  await page.waitFor(selector)
-  await page.focus(selector)
-  for (i = 0; i < 10; i++) {
+   await page.waitFor(selector)
+   await page.focus(selector)
+  for (i = 0; i < 30; i++) {
     await page.click(selector)
-    await page.waitFor(1000);
+    await page.waitFor(selector);
   }
   await page.evaluate(() => document.body.innerHTML)
 
     .then(function (html) {
-      const length = $('.item-footer', html).length;
-      ////console.log(length)
+      //console.log(html)
+      const length = $('.kBxCgu', html).length;
+      console.log(length)
       for (let i = 0; i < length; i++) {
-        const date = $('[pubdate="pubdate"]', html)[i].children[0].data.replace(/(\r\n|\n|\r)/gm, "").trim()
-        const topic = $('.item-footer > h3 > a', html)[i].children[0].data.replace(/(\r\n|\n|\r)/gm, "").trim()
-        ////console.log(topic)
-        const newDate = date.substr(date.indexOf(" ") + 1)
+        const date = $('.kBxCgu > a > div > .bFocVK > div', html)[i].children[0].data.replace(/(\r\n|\n|\r)/gm, "").trim()
+        const topic = $('.kBxCgu > a > div > div > h2', html)[i].children[0].data.replace(/(\r\n|\n|\r)/gm, "").trim()
+        //console.log(date)
         obj = {}
-        obj.date = new Date(setDate(newDate))
-        ////console.log("dwdd", new Date(setDate(newDate)))
+        obj.date = setDate(date)
         obj.topic = topic
+        console.log(obj)
         pushTopic("dwdd", obj)
       }
+
     })
 
   await browser.close();
@@ -143,7 +166,7 @@ async function getTopicJinek() {
         const date = $('[class="date-display-single"]', html)[i].children[0].data.replace(/(\r\n|\n|\r)/gm, "").trim()
         const topic = $('[class="ds-1col node node-fragment view-mode-tile "] > h2 > a', html)[i].children[0].data.replace(/(\r\n|\n|\r)/gm, "").trim()
         obj = {}
-        obj.date = new Date(setDate(date))
+        obj.date = setDate(date)
         obj.topic = topic
         pushTopic("jinek", obj)
       }
@@ -161,13 +184,37 @@ month.set("juli", "July");
 month.set("augustus", "August");
 month.set("februari", "February");
 
+month.set("jan", "Januari");
+month.set("feb", "February");
+month.set("mrt", "March");
+month.set("apr", "April");
+month.set("mei", "May");
+month.set("jun", "June");
+month.set("jul", "July");
+month.set("aug", "August");
+month.set("sept","September")
+month.set("okt", "October");
+month.set("nov", "November");
+month.set("dec", "December");
+
+
 function setDate(date) {
-  const part = date.split(" ")
-  if (month.has(part[1])) {
-    part[1] = month.get(part[1])
-  }
-  newDate = part.reverse().join(" ")
-  return newDate
+    if (date === "Gisteren") {
+       const newDate = new Date(new Date().setDate(new Date().getDate() -1))
+       return newDate
+    }
+    if (date === "Vandaag") {
+      const newDate = new Date(new Date().setDate(new Date().getDate()))
+      return newDate
+   }
+    else{
+      const part = date.split(" ")
+      if (month.has(part[1])) {
+        part[1] = month.get(part[1])
+      }
+      newDate = part.reverse().join(" ")
+      return new Date(newDate)
+    }
 }
 
 function hasShow(show) {
@@ -242,7 +289,7 @@ list[0].last_update = new Date
 
 getTopicPauw();
 getTopicDwdd();
-getTopicJinek();
+//getTopicJinek();
 
 setInterval(function () {
   http.get("http://npo-talkshow-assistent.herokuapp.com");
