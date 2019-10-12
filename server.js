@@ -23,6 +23,8 @@ const reqproces = dialogflow({
 const pauwUrl = "https://www.bnnvara.nl/pauw/videos?type=fragmenten&since=alles";
 const dwddUrl = "https://www.bnnvara.nl/dewerelddraaitdoor/videos?type=extras&since=alles"
 const jinekUrl = "https://evajinek.kro-ncrv.nl/uitzendingen/programma/jinek"
+const beauUrl = "https://www.rtl.nl/gemist/beau/fragmenten/"
+
 let list = [{
   
     "last_update": 0
@@ -35,6 +37,9 @@ let list = [{
   },
   {
     "jinek": []
+  },
+  {
+    "beau": []
   }
 ];
 
@@ -138,6 +143,58 @@ async function getTopicDwdd() {
   console.log("------------------------------------------------------------------------------ dwdd done!");
 }
 
+async function getTopicBeau() {
+  console.log("updating Beau")
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+    ],
+  });
+
+  const page = await browser.newPage();
+  const cookieButton = '[type="submit"]'
+
+  await page.goto(beauUrl, {
+    waitUntil: 'networkidle2'
+  });
+
+  await page.click(cookieButton)
+
+  await page.goto(beauUrl, {
+    waitUntil: 'networkidle2'
+  });
+
+  await page.waitFor(1000);
+  for (i = 0; i < 2; i++) {
+    await page.evaluate(_ => {
+      window.scrollTo(5110, 5110);
+      });
+    await page.waitFor(1000);
+  }
+  await page.evaluate(() => document.body.innerHTML)
+
+    .then(function (html) {
+      //console.log(html)
+      const length = $('.rtl-card-grid__list-item', html).length;
+      console.log(length)
+      for (let i = 0; i < length; i++) {
+        const date = $('.rtl-card__date', html)[i].children[0].data.replace(/(\r\n|\n|\r)/gm, "").trim()
+        const topic = $('.rtl-card__title', html)[i].children[0].data.replace(/(\r\n|\n|\r)/gm, "").trim()
+        obj = {}
+        obj.date = setDate(date)
+        obj.topic = topic
+        console.log(obj)
+        pushTopic("beau", obj)
+       }
+
+    })
+
+  await browser.close();
+  console.log("------------------------------------------------------------------------------ beau done!");
+}
+
 async function getTopicJinek() {
   console.log("updating jinek")
   const browser = await puppeteer.launch({
@@ -199,16 +256,26 @@ month.set("dec", "December");
 
 
 function setDate(date) {
-    if (date === "Gisteren") {
+  console.log(date)
+    if (date === "Gisteren" || date === "gisteren") {
        const newDate = new Date(new Date().setDate(new Date().getDate() -1))
        return newDate
     }
+    if (date === "Eergisteren" || date === "eergisteren") {
+      const newDate = new Date(new Date().setDate(new Date().getDate() -2))
+      return newDate
+   }
     if (date === "Vandaag") {
       const newDate = new Date(new Date().setDate(new Date().getDate()))
       return newDate
    }
     else{
       const part = date.split(" ")
+      if(part.length > 3){
+        console.log(part[0])
+        part.shift()
+      }
+
       if (month.has(part[1])) {
         part[1] = month.get(part[1])
       }
@@ -287,9 +354,10 @@ reqproces.intent('GetTopic', (conv, params) => {
 app.post('/webhook', reqproces);
 list[0].last_update = new Date
 
-getTopicPauw();
-getTopicDwdd();
-//getTopicJinek();
+ getTopicPauw();
+ getTopicDwdd();
+// getTopicJinek();
+ getTopicBeau();
 
 setInterval(function () {
   http.get("http://npo-talkshow-assistent.herokuapp.com");
@@ -301,7 +369,8 @@ setInterval(function () {
   
   getTopicPauw();
   getTopicDwdd();
-  getTopicJinek();
+  //getTopicJinek();
+  getTopicBeau();
   list[0].last_update = new Date
 
 }, dayInMilliseconds);
